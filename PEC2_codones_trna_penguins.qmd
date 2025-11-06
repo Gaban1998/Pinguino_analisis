@@ -1,0 +1,731 @@
+---
+title: "Filogenia vs. ambiente térmico en el sesgo de uso de codones de pingüinos"
+author: "Gabriel Peña"
+lang: es
+language:
+  label:
+    fig: "Figura"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-expand: true
+    code-fold: true
+    fig-width: 10
+    fig-height: 7
+    fig-align: center
+    fig-dpi: 300
+    number-figures: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Análisis bioinformático de codones y tRNAs en pingüinos
+
+Este documento forma parte de la **PEC2 del TFM en Bioinformática y Bioestadística (UOC)**\
+y contiene el flujo completo de análisis comparativo de uso de codones y abundancia de tRNAs\
+para cuatro especies de pingüinos: *Aptenodytes forsteri*, *Eudyptula minor*, *Spheniscus demersus*\
+y *Spheniscus mendiculus*.
+
+El propósito de esta etapa es demostrar que el flujo bioinformático ya funciona end-to-end:\
+desde la preparación y filtrado de datos, hasta los primeros análisis exploratorios reproducibles.
+
+## 1. Configuración y carga de datos
+
+En esta sección se cargan los paquetes necesarios, se define la estructura de las carpetas\
+y se asocian los archivos de entrada (CDS y tRNAs) con cada especie.\
+También se genera la tabla base que describe las correspondencias entre codones y aminoácidos.
+
+```{r}
+#| label: setup
+#| include: false
+
+# Se cargan paquetes principales para análisis genómico y visualización
+library(tidyverse)
+library(Biostrings)
+library(pheatmap)
+library(ggrepel)
+library(scales)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+
+# Se define el tema gráfico general (limpio y legible)
+theme_set(theme_bw())
+
+# ---- Definición de especies y rutas ----
+# Se definen las especies con sus nombres y carpetas correspondientes.
+
+species_meta <- tribble(
+  ~species_id, ~label,                    ~folder,
+  "Afor",      "Aptenodytes forsteri",    "APT_FOR",
+  "Emin",      "Eudyptula minor",         "EUD_MIN",
+  "Sdem",      "Spheniscus demersus",     "SPH_DEM",
+  "Smen",      "Spheniscus mendiculus",   "SPH_MEN"
+)
+
+# Se generan automáticamente las rutas a CDS y tRNAs
+species_info <- species_meta %>%
+  mutate(
+    cds_fasta = file.path("data", folder, "cds_from_genomic.fna"),
+    trna_file = file.path("data", folder, "trnascan.txt")
+  )
+
+# ---- Tabla codón -> aminoácido ----
+# Se genera la correspondencia entre codones y aminoácidos usando el código genético estándar.
+# Se usa más adelante para calcular el RSCU y agrupar los codones por aminoácido.
+
+std_code <- Biostrings::GENETIC_CODE
+
+codon_aa_tbl <- enframe(std_code, name = "codon", value = "aa") %>%
+  filter(aa != "*")  # Quitamos codones STOP
+
+# Contamos cuántos codones sinónimos tiene cada aminoácido
+aa_syn_counts <- codon_aa_tbl %>%
+  count(aa, name = "n_syn")
+
+# Unimos esta información a la tabla principal
+codon_aa_tbl <- codon_aa_tbl %>%
+  left_join(aa_syn_counts, by = "aa")
+
+# Creamos la carpeta de resultados si no existe
+dir.create("results", showWarnings = FALSE)
+```
+
+## 2. Preparación y control de calidad de CDS
+
+El objetivo aquí es asegurarse de que todas las secuencias codificantes (CDS) sean válidas antes de calcular estadísticas.
+
+Se comprueba que:
+
+Las secuencias tengan una longitud múltiplo de 3.
+
+Cumplan una longitud mínima razonable (≥ 90 nt, equivalente a \~30 aminoácidos).
+
+Se eliminan las CDS demasiado cortas o dudosas porque las secuencias incompletas o mal anotadas pueden distorsionar los conteos de codones y los valores de RSCU.
+
+```{r}
+#| label: check-orf-fun
+
+# Función de control de calidad:
+
+# Se revisa que cada CDS tenga longitud múltiplo de 3 y sea suficientemente larga.
+
+check_orf <- function(seq) {
+s <- toupper(as.character(seq))
+
+if (nchar(s) < 90) return(FALSE)
+if (nchar(s) %% 3 != 0) return(FALSE)
+
+TRUE
+}
+
+```
+
+```{r}
+#| label: process-species-cds
+
+# Función para procesar una especie completa:
+
+# Se leen los CDS, se aplica el filtro anterior, se cuentan codones y se calculan los índices RSCU.
+
+process_species_cds <- function(species_id, label, cds_fasta, trna_file) {
+message("Procesando CDS para ", species_id, " (", label, ")")
+
+cds <- readDNAStringSet(cds_fasta)
+
+# Se aplica el filtro de calidad (ORFs válidos)
+
+orf_ok <- vapply(cds, check_orf, logical(1))
+cds_filt <- cds[orf_ok]
+
+message("  CDS válidos: ", sum(orf_ok), " / ", length(cds))
+
+# Se genera matriz con el conteo de cada codón por CDS (salto de 3 bases)
+
+codon_counts_mat <- trinucleotideFrequency(
+cds_filt,
+step    = 3,
+as.prob = FALSE
+)
+
+# Se convierte a formato largo y se añade la información de aminoácido
+
+codon_counts_df <- as_tibble(codon_counts_mat, rownames = "seq_id") %>%
+pivot_longer(-seq_id, names_to = "codon", values_to = "count") %>%
+filter(count > 0L) %>%
+left_join(codon_aa_tbl, by = "codon") %>%
+filter(!is.na(aa))
+
+# Se calcula el RSCU por gen:
+
+# RSCU = (uso observado) / (uso esperado si todos los codones sinónimos se usaran igual)
+
+rscu_gene <- codon_counts_df %>%
+group_by(seq_id, aa) %>%
+mutate(
+aa_total = sum(count),
+RSCU = if_else(
+aa_total > 0,
+count * n_syn / aa_total,
+NA_real_
+)
+) %>%
+ungroup() %>%
+mutate(
+species       = species_id,
+species_label = label
+)
+
+# Se calcula el RSCU promedio por especie
+
+rscu_species <- rscu_gene %>%
+group_by(species, species_label, aa, codon) %>%
+summarise(
+RSCU = mean(RSCU, na.rm = TRUE),
+.groups = "drop"
+)
+
+# Se obtienen las frecuencias relativas por aminoácido (cada conjunto suma 1)
+
+aa_freq_species <- codon_counts_df %>%
+group_by(aa, codon) %>%
+summarise(count = sum(count), .groups = "drop") %>%
+group_by(aa) %>%
+mutate(
+aa_total = sum(count),
+freq     = count / aa_total
+) %>%
+ungroup() %>%
+mutate(
+species       = species_id,
+species_label = label
+)
+
+# Resumen general de cuántos CDS se analizaron
+
+gene_summary <- tibble(
+species       = species_id,
+species_label = label,
+n_cds_total   = length(cds),
+n_cds_orf_ok  = length(cds_filt)
+)
+
+list(
+rscu_gene       = rscu_gene,
+rscu_species    = rscu_species,
+aa_freq_species = aa_freq_species,
+gene_summary    = gene_summary
+)
+}
+
+# Se ejecuta la función para todas las especies del estudio
+
+res_list <- species_info %>%
+  select(species_id, label, cds_fasta, trna_file) %>%
+  pmap(process_species_cds)
+
+# Se unen todos los resultados parciales en tablas generales
+
+rscu_gene_all    <- map_dfr(res_list, "rscu_gene")
+rscu_species_all <- map_dfr(res_list, "rscu_species")
+aa_freq_all      <- map_dfr(res_list, "aa_freq_species")
+gene_summary_all <- map_dfr(res_list, "gene_summary")
+
+# Se guarda la tabla resumen de genes válidos por especie
+
+write_tsv(gene_summary_all, "results/gene_summary_by_species.tsv")
+
+gene_summary_all
+```
+
+## 3. Cálculo y visualización del uso relativo de codones (RSCU)
+
+En esta etapa se combinan los resultados de cada especie para generar una **matriz RSCU**,\
+donde las filas son codones y las columnas son especies.
+
+Esta matriz sirve como base para visualizaciones comparativas, como el *heatmap* o la PCA y permite identificar qué codones son preferidos o evitados en cada especie.
+
+```{r}
+#| label: rscu-matrix
+
+# Se genera la matriz RSCU: filas = codones, columnas = especies
+
+rscu_matrix_long <- rscu_species_all %>%
+select(aa, codon, species, RSCU)
+
+rscu_matrix_wide <- rscu_matrix_long %>%
+pivot_wider(
+names_from  = species,
+values_from = RSCU
+) %>%
+arrange(aa, codon)
+
+# Se guarda la matriz para referencia posterior o análisis externos
+
+write_tsv(rscu_matrix_wide, "results/RSCU_matrix_by_species.tsv")
+
+# Se muestran las primeras filas en el documento
+
+rscu_matrix_wide %>% head()
+```
+
+### 3.1 Visualización general: heatmap de RSCU
+
+Para tener una primera impresión global de las diferencias,\
+se representa un *heatmap* donde cada fila corresponde a un codón\
+y el color refleja su RSCU relativo entre las especies.
+
+En este gráfico los valores se escalan por fila (`scale = "row"`),\
+de modo que los colores muestran diferencias **relativas** entre especies, no valores absolutos. Así se aprecian mejor los patrones de contraste.
+
+```{r}
+#| label: fig-rscu-heatmap
+#| fig-cap: "Heatmap de valores RSCU para los 61 codones en cuatro especies de pingüinos."
+#| fig-width: 7
+#| fig-height: 9
+
+# Se prepara la matriz para el heatmap
+
+rscu_heatmap_mat <- rscu_species_all %>%
+unite("aa_codon", aa, codon, sep = "_") %>%
+select(aa_codon, species, RSCU) %>%
+pivot_wider(names_from = species, values_from = RSCU) %>%
+column_to_rownames("aa_codon") %>%
+as.matrix()
+
+# Se limpian los posibles NA o NaN
+
+rscu_heatmap_mat[is.nan(rscu_heatmap_mat)] <- NA
+rscu_heatmap_mat[is.na(rscu_heatmap_mat)]  <- 0
+
+# Se eliminan las filas sin variación (para evitar errores en clustering)
+
+row_sds <- apply(rscu_heatmap_mat, 1, sd)
+rscu_heatmap_mat_filt <- rscu_heatmap_mat[row_sds > 0, , drop = FALSE]
+
+# Se crea el heatmap
+
+pheatmap(
+rscu_heatmap_mat_filt,
+cluster_rows = TRUE,
+cluster_cols = TRUE,
+scale       = "row",
+main        = "RSCU por codón (filas) y especie (columnas)"
+)
+```
+
+## 4. Análisis a nivel de aminoácido
+
+Hasta ahora analizamos el uso de codones individualmente,\
+pero los aminoácidos con varios codones sinónimos pueden mostrar\
+diferentes grados de **sesgo interno**.
+
+En esta sección se calcula y visualiza la distribución de frecuencias de los codones sinónimos dentro de cada aminoácido,\
+y se cuantifica su desigualdad con el **índice de Shannon**.
+
+```{r}
+#| label: fig-aa-freq-barplot
+#| fig-cap: "Frecuencia relativa de codones sinónimos para un aminoácido de ejemplo (leucina) en las cuatro especies de pingüinos."
+
+# Se selecciona un aminoácido de ejemplo para ilustrar
+
+aa_of_interest <- "L"
+
+# Gráfico de barras: frecuencia relativa de cada codón sinónimo por especie
+
+aa_freq_all %>%
+filter(aa == aa_of_interest) %>%
+ggplot(aes(x = codon, y = freq, fill = species_label)) +
+geom_col(position = "dodge") +
+labs(
+title = paste("Frecuencia relativa de codones para", aa_of_interest),
+x     = "Codón",
+y     = "Frecuencia relativa"
+) +
+scale_y_continuous(labels = percent_format(accuracy = 1)) +
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+#| label: fig-aa-freq-barplot-2
+#| fig-cap: "Frecuencia relativa de codones sinónimos para un aminoácido de ejemplo en las cuatro especies de pingüinos."
+
+# Se selecciona un aminoácido de ejemplo para ilustrar
+
+aa_of_interest <- "Q"
+
+# Gráfico de barras: frecuencia relativa de cada codón sinónimo por especie
+
+aa_freq_all %>%
+filter(aa == aa_of_interest) %>%
+ggplot(aes(x = codon, y = freq, fill = species_label)) +
+geom_col(position = "dodge") +
+labs(
+title = paste("Frecuencia relativa de codones para", aa_of_interest),
+x     = "Codón",
+y     = "Frecuencia relativa"
+) +
+scale_y_continuous(labels = percent_format(accuracy = 1)) +
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### 4.1 Cuantificación del sesgo por aminoácido
+
+No basta con ver la distribución: también interesa medir **cuánto sesgo hay**.\
+Para eso se calculan dos indicadores por aminoácido y especie:
+
+-   **Índice de Shannon (H’):** mide la diversidad de uso de codones.\
+    Cuanto menor es H’, más concentrado está el uso en unos pocos codones.\
+-   **Varianza:** mide la desigualdad en las frecuencias.
+
+Estos valores permiten comparar el “nivel de uniformidad” entre aminoácidos y entre especies de forma más objetiva.
+
+```{r}
+#| label: aa-bias-metrics
+
+aa_bias_metrics <- aa_freq_all %>%
+group_by(species, species_label, aa) %>%
+summarise(
+n_codons      = n(),
+shannon_index = -sum(freq * log2(freq), na.rm = TRUE),
+variance_freq = var(freq, na.rm = TRUE),
+.groups = "drop"
+) %>%
+mutate(
+shannon_rel = shannon_index / log2(n_codons)  # 0–1 (1 = uso uniforme)
+)
+
+# Se guardan los resultados para análisis posteriores
+
+write_tsv(aa_bias_metrics, "results/aa_bias_metrics.tsv")
+
+aa_bias_metrics %>% head()
+```
+
+### 4.2 Visualización del índice de Shannon relativo
+
+Finalmente, se representa el **índice de Shannon relativo** (`H' / Hmax`)\
+para cada aminoácido y especie.
+
+Un valor cercano a 1 indica que los codones se usan de forma uniforme,\
+mientras que valores bajos (≈ 0) revelan un fuerte sesgo.
+
+Esta figura permite apreciar qué aminoácidos muestran más estabilidad y cuáles concentran el uso en pocos codones, lo que podría estar relacionado con preferencias de traducción o restricciones evolutivas.
+
+```{r}
+#| label: fig-aa-bias-plot
+#| fig-cap: "Índice de Shannon relativo por aminoácido, comparando la distribución de codones sinónimos entre especies."
+
+ggplot(aa_bias_metrics, aes(x = aa, y = shannon_rel, fill = species_label)) +
+geom_col(position = "dodge") +
+labs(
+title = "Índice de Shannon relativo del uso de codones por aminoácido",
+x     = "Aminoácido",
+y     = "H' relativo (0 = sesgo alto, 1 = uniforme)"
+) +
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## 5. Comparación entre especies: PCA y clustering
+
+En esta sección se comparan los perfiles globales de uso de codones entre las cuatro especies.\
+La idea es ver si las especies se agrupan más por **filogenia** o por **condiciones ambientales**.
+
+Se utilizan dos enfoques clásicos:
+
+-   **PCA (Análisis de Componentes Principales):** reduce la información y muestra las diferencias globales.\
+
+-   **Clustering jerárquico:** agrupa las especies según su distancia en los valores de RSCU.
+
+-   Si las especies filogenéticamente cercanas se agrupan, el patrón estaría dominado por la historia evolutiva.\
+
+-   Si las de ambientes similares se acercan aunque sean distantes, podría haber convergencia adaptativa.
+
+```{r}
+#| label: fig-pca-rscu
+#| fig-cap: "Análisis PCA del uso relativo de codones (RSCU) entre especies de pingüinos."
+
+
+# Se genera el PCA sobre la matriz RSCU promedio por especie
+
+rscu_pca_wide <- rscu_species_all %>%
+select(species, species_label, codon, RSCU) %>%
+pivot_wider(
+names_from  = codon,
+values_from = RSCU
+)
+
+species_labels <- rscu_pca_wide$species_label
+
+rscu_pca_mat <- rscu_pca_wide %>%
+select(-species, -species_label) %>%
+as.matrix()
+
+row.names(rscu_pca_mat) <- rscu_pca_wide$species
+
+# Se reemplazan los valores faltantes por 0 y se eliminan las columnas constantes
+
+rscu_pca_mat[is.na(rscu_pca_mat)] <- 0
+col_sds <- apply(rscu_pca_mat, 2, sd)
+rscu_pca_mat_filt <- rscu_pca_mat[, col_sds > 0, drop = FALSE]
+
+# Se ejecuta el PCA
+
+pca_res <- prcomp(rscu_pca_mat_filt, scale. = TRUE)
+
+# Tabla de resultados de PCA (componentes principales)
+
+pca_df <- as_tibble(pca_res$x, rownames = "species") %>%
+left_join(species_info %>% select(species_id, label),
+by = c("species" = "species_id"))
+
+# Se visualizan los dos primeras componentes
+
+ggplot(pca_df, aes(x = PC1, y = PC2, label = label)) +
+  geom_point(size = 3, color = "#2c7fb8") +
+  ggrepel::geom_text_repel(
+    size      = 4,
+    max.overlaps = Inf
+  ) +
+  labs(
+    title = "PCA de RSCU promedio por especie",
+    x = paste0("PC1 (", percent(summary(pca_res)$importance[2,1]), ")"),
+    y = paste0("PC2 (", percent(summary(pca_res)$importance[2,2]), ")")
+  ) +
+  theme(
+    plot.margin = margin(10, 20, 10, 10)
+  )
+```
+
+### 5.1 Agrupamiento jerárquico
+
+A continuación se construye un **dendrograma** que muestra las relaciones entre especies\
+según la distancia euclidiana en sus valores de RSCU.
+
+En un análisis exploratorio, este gráfico ayuda a visualizar si los perfiles de uso de codones siguen el mismo patrón que el árbol filogenético.
+
+```{r}
+#| label: fig-hclust-rscu
+#| fig-cap: "Clustering jerárquico de especies basado en las distancias de uso de codones (RSCU)."
+
+
+dist_species <- dist(rscu_pca_mat_filt)
+hc <- hclust(dist_species, method = "complete")
+
+op <- par(mar = c(5, 4, 4, 6))
+
+plot(
+  hc,
+  labels = species_labels,
+  main = "Clustering jerárquico basado en RSCU",
+  xlab = "",
+  sub  = "",
+  cex  = 1.2   # tamaño de letra de las etiquetas
+)
+
+par(op)
+```
+
+## 6. Relación codón–tRNA
+
+El último paso conecta la frecuencia de uso de codones con la abundancia de tRNAs.\
+El objetivo es evaluar si los codones más usados en cada especie\
+coinciden con los anticodones más representados en su genoma (coadaptación).
+
+```{r}
+#| label: trna-read-funs
+
+# Función para convertir anticodón (3'->5') en codón complementario
+
+anticodon_to_codon <- function(ac) {
+ac_dna <- gsub("U", "T", toupper(ac))
+as.character(reverseComplement(DNAString(ac_dna)))
+}
+
+# Se realiza la conversión de nombres de aminoácidos de 3 a 1 letra
+
+aa3_to1 <- c(
+Ala = "A", Arg = "R", Asn = "N", Asp = "D",
+Cys = "C", Gln = "Q", Glu = "E", Gly = "G",
+His = "H", Ile = "I", Leu = "L", Lys = "K",
+Met = "M", Phe = "F", Pro = "P", Ser = "S",
+Thr = "T", Trp = "W", Tyr = "Y", Val = "V"
+)
+
+# Se realiza la lectura y resumen de archivos de tRNAscan-SE
+
+read_trna_counts <- function(trna_file, species_id) {
+
+# Se saltan las 3 líneas de cabecera
+
+trna_raw <- readr::read_table(
+trna_file,
+skip = 3,
+col_names = FALSE,
+show_col_types = FALSE
+)
+
+# X5: Tipo de tRNA (AA)
+
+# X6: Anticodón
+
+# X10: Nota (pseudo)
+
+trna_df <- tibble(
+species   = species_id,
+aa3       = trna_raw[[5]],
+anticodon = toupper(trna_raw[[6]]),
+note      = if (ncol(trna_raw) >= 10) trna_raw[[10]] else NA_character_
+) %>%
+mutate(
+aa = aa3_to1[aa3]
+) %>%
+filter(
+!is.na(aa),
+aa != "",
+is.na(note) | !str_detect(note, "pseudo")
+) %>%
+mutate(
+codon = map_chr(anticodon, anticodon_to_codon)
+)
+
+# Se cuentan los tRNAs por codón
+
+trna_counts <- trna_df %>%
+count(species, aa, codon, name = "tRNA_copies")
+
+trna_counts
+}
+
+# Se aplica la función a todas las especies
+
+trna_counts_all <- species_info %>%
+select(species_id, trna_file) %>%
+pmap_dfr(~ read_trna_counts(..2, ..1))
+
+trna_counts_all
+```
+
+### 6.1 Unir frecuencias de codones y copias de tRNA
+
+Aquí se combinan las dos tablas:\
+- Frecuencia relativa de cada codón (`aa_freq_all`)\
+- Número de copias del tRNA correspondiente (`trna_counts_all`)
+
+Luego se calculan las correlaciones (Spearman y Pearson) por especie.
+
+```{r}
+#| label: codon-trna-join
+
+codon_trna_join <- aa_freq_all %>%
+mutate(codon = toupper(codon)) %>%
+select(species, species_label, aa, codon, codon_freq = freq) %>%
+left_join(
+trna_counts_all %>% mutate(codon = toupper(codon)),
+by = c("species", "aa", "codon")
+) %>%
+mutate(
+tRNA_copies = replace_na(tRNA_copies, 0L)
+)
+
+# Correlaciones por especie (evitando sd = 0)
+
+codon_trna_cor <- codon_trna_join %>%
+group_by(species, species_label) %>%
+summarise(
+n_codons         = n(),
+n_codons_tRNAgt0 = sum(tRNA_copies > 0),
+sd_codon_freq    = sd(codon_freq),
+sd_tRNA_copies   = sd(tRNA_copies),
+cor_spearman = ifelse(
+sd_codon_freq > 0 & sd_tRNA_copies > 0,
+cor(codon_freq, tRNA_copies, method = "spearman"),
+NA_real_
+),
+cor_pearson = ifelse(
+sd_codon_freq > 0 & sd_tRNA_copies > 0,
+cor(codon_freq, tRNA_copies, method = "pearson"),
+NA_real_
+),
+.groups = "drop"
+) %>%
+arrange(desc(cor_spearman))
+
+# Se guardan los resultados de las correlaciones
+
+write_tsv(codon_trna_cor, "results/codon_trna_correlations_by_species.tsv")
+
+codon_trna_cor
+```
+
+### 6.2 Visualización: dispersión codón–tRNA
+
+Por último, se genera un gráfico de dispersión para cada especie.\
+Cada punto representa un codón:\
+- Eje X = número de copias del tRNA correspondiente.\
+- Eje Y = frecuencia relativa del codón en el genoma.
+
+La línea de tendencia indica si existe una correlación positiva (coadaptación).
+
+```{r}
+#| label: fig-codon-trna-plot
+#| fig-cap: "Relación entre la abundancia de tRNAs (anticodones) y la frecuencia relativa de codones por especie."
+
+# Se calcula el coeficiente de correlación por especie
+cor_data <- codon_trna_join %>%
+  group_by(species_label) %>%
+  summarise(r = cor(tRNA_copies, codon_freq, method = "pearson", use = "complete.obs")) %>%
+  mutate(r_label = paste0("r = ", round(r, 2)))
+
+# Se genera el gráfico con anotaciones
+ggplot(codon_trna_join,
+       aes(x = tRNA_copies, y = codon_freq)) +
+  geom_point(alpha = 0.7, color = "#3182bd") +
+  geom_smooth(method = "lm", se = FALSE, color = "#de2d26") +
+  facet_wrap(~ species_label, scales = "free_x") +
+  geom_text(
+    data = cor_data,
+    aes(x = Inf, y = Inf, label = r_label),
+    hjust = 1.1, vjust = 1.2, size = 3.5, color = "black",
+    inherit.aes = FALSE
+  ) +
+  labs(
+    title = "Relación entre frecuencia de codones y copias de tRNA",
+    x = "Número de copias de tRNA (anticodón)",
+    y = "Frecuencia relativa de codón"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(face = "bold"))
+```
+
+## 7. Conclusión de la fase bioinformática (PEC2)
+
+Con este flujo se completa la parte bioinformática prevista para la PEC2:
+
+-   Control de calidad de CDS y tRNAs.\
+-   Cálculo y comparación de RSCU entre especies.\
+-   Cuantificación del sesgo por aminoácido (índice de Shannon).\
+-   Análisis global mediante PCA y clustering.\
+-   Exploración inicial de la coadaptación codón–tRNA.
+
+El documento exporta todas las tablas en la carpeta `results/` para su posterior interpretación en la memoria del TFM.
+
+## 8. Estructura de Archivos necesaria
+
+``` text
+Pinguino_analisis/
+ ├─ data/
+ │   ├─ APT_FOR/cds_from_genomic.fna, trnascan.txt
+ │   ├─ EUD_MIN/cds_from_genomic.fna, trnascan.txt
+ │   ├─ SPH_DEM/cds_from_genomic.fna, trnascan.txt
+ │   └─ SPH_MEN/cds_from_genomic.fna, trnascan.txt
+ ├─ PEC2_codones_trna_penguins.qmd
+ └─ run_trnascan_eukaryotic.sh
+```
+
+## 9. Reflexión ética y sostenibilidad (CCEG)
+
+Este análisis utiliza datos genómicos públicos (NCBI GenBank) y herramientas de software libre (R y Python). No genera impacto ambiental ni ético directo, y promueve la ciencia abierta y reproducible, contribuyendo a los ODS 13, 15 y 16.
