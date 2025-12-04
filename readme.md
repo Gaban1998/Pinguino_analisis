@@ -97,38 +97,95 @@ El script detecta automáticamente los archivos genómicos que terminan en \_gen
 -   trnascan.txt (resultados detallados)
 -   trnascan.stats.txt
 
-## 5. Análisis de codones y tRNAs en R/Quarto
+## 5. Análisis de ortólogos con OrthoFinder
 
-El flujo de análisis de la PEC2 se implementa en el archivo:
+Para la comparación por pares de especies se utiliza OrthoFinder, que identifica orthogrupos y orthólogos 1:1 a partir de proteomas completos.
 
-- `PEC2_codones_trna_penguins.qmd`
+### 5.1 Instalación de OrthoFinder en WSL
+
+En Ubuntu/WSL ejecutar:
+
+``` bash
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
+conda create -n ortho_env orthofinder -y
+
+conda activate ortho_env
+
+orthofinder -h
+```
+
+### 5.2 Preparación automática de la entrada y ejecución
+
+Desde la carpeta del proyecto Pinguino_analisis/:
+
+``` text
+conda activate ortho_env
+./run_orthofinder_penguins.sh
+```
+
+Este script:
+
+Recorre automáticamente data/*/.
+Busca protein.faa en cada especie (APT_FOR, EUD_MIN, SPH_DEM, SPH_MEN).
+Copia los archivos a orthofinder_input/ renombrados como <ESPECIE>.faa.
+Ejecuta orthofinder -f orthofinder_input -t 4 -a 4.
+
+Los resultados se guardan en:
+
+``` text
+orthofinder_input/OrthoFinder/Results_XXXXXX/
+ ├─ Orthogroups/
+ │    ├─ Orthogroups.txt
+ │    └─ ...
+ └─ (otros directorios: árboles, alineamientos, logs)
+```
+
+El archivo usado por el análisis comparativo en R (PEC3) es Orthogroups/Orthogroups.txt que se conecta con las CDS (data/*/cds_from_genomic.fna) en el .qmd para calcular las distancias codónicas por gen y generar los rankings de genes divergentes / similares.
+
+## 6. Análisis de codones, tRNAs y orthólogos en R/Quarto
+
+El flujo de análisis se implementa en el archivo:
+
+- `PEC3_codones_trna_penguins.qmd`
 
 Este documento Quarto:
 
-- Lee las secuencias codificantes (`cds_from_genomic.fna`) y los resultados de tRNAscan-SE (`trnascan.txt`)
-  para cada especie.
-- Aplica control de calidad a las CDS.
-- Calcula el uso relativo de codones (RSCU) y métricas de sesgo por aminoácido.
-- Integra la información de abundancia de tRNAs y genera las figuras principales
-  (heatmap de RSCU, PCA, clustering jerárquico, gráficos codón–tRNA, etc.).
-
-### 5.1 Requisitos para ejecutar el `.qmd`
+- Lee las secuencias codificantes (`cds_from_genomic.fna`), los resultados de tRNAscan-SE (`trnascan.txt`)
+  y los proteomas (`protein.faa`) de cada especie.
+- Aplica control de calidad a las CDS (longitud múltiplo de 3, filtrado básico).
+- Calcula el uso relativo de codones (RSCU) y métricas de sesgo por aminoácido (entropía de Shannon),
+  generando figuras globales (heatmaps, PCA, clustering jerárquico) para comparar especies.
+- Integra la información de abundancia de tRNAs para explorar la coadaptación codón–tRNA.
+- Importa los orthogrupos 1:1 desde `orthofinder_input/OrthoFinder/Results_XXX/Orthogroups/Orthogroups.txt`
+  y los enlaza con las CDS correspondientes de cada especie.
+- Calcula distancias codónicas por gen (por orthogrupo) para pares de especies:
+  - `SPH_DEM` vs `SPH_MEN` (cercanas, clima distinto)  
+  - `APT_FOR` vs `EUD_MIN` (lejanas, clima similar)
+  
+### 6.1 Requisitos para ejecutar el `.qmd`
 
 Se recomienda tener instalado:
 
 - R (versión ≥ 4.5.2)
 - Quarto (RStudio con soporte Quarto)
 - Paquetes de R usados en el documento (cargados en el primer chunk):
-  `tidyverse`, `readr`, `Biostrings`, `pheatmap`, `ggrepel`, `scales`, `dplyr`, `ggplot2`, entre otros.
+  `tidyverse`,`pheatmap`,`ggrepel`,`scales`,`stringr`,`dplyr`,`ggplot2`,`seqinr`,`reshape2`,`cowplot`
 
 Si al ejecutar aparecen errores de “paquete no encontrado”, se pueden instálar con:
 
 ```r
-install.packages(c("tidyverse", "readr", "pheatmap", "ggrepel", "scales", `dplyr`, `ggplot2`))
+install.packages(c("tidyverse","pheatmap","ggrepel","scales","stringr","dplyr","ggplot2","seqinr","reshape2","cowplot"))
+
+# Paquete de Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
 BiocManager::install("Biostrings")
 ```
 
-### 5.2 Cómo generar el informe HTML
+### 6.2 Cómo generar el informe HTML
 
 Desde la carpeta del proyecto (Pinguino_analisis/), una vez disponibles los archivos:
 
@@ -136,12 +193,16 @@ Desde la carpeta del proyecto (Pinguino_analisis/), una vez disponibles los arch
 
 - `data/*/trnascan.txt`
 
+- `orthofinder_input/OrthoFinder/Results_XXXXXX/Orthogroups/Orthogroups.txt`
+
+- `data/*/protein.faa`
+
 Se pueden renderizar los análisis con:
 
-`quarto render PEC2_codones_trna_penguins.qmd`
+`quarto render PEC3_codones_trna_penguins.qmd`
 
 Esto generará el archivo:
 
-`PEC2_codones_trna_penguins.html`
+`PEC3_codones_trna_penguins.html`
 
-que contiene el informe reproducible de la PEC2 (figuras, tablas y descripción del flujo).
+que contiene el informe reproducible hasta la PEC3 (figuras, tablas y descripción del flujo).

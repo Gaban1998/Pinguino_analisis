@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Gabriel Peña">
+
+<title>Filogenia vs.&nbsp;ambiente térmico en el sesgo de uso de codones de pingüinos</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="PEC3_codones_trna_penguins_files/libs/clipboard/clipboard.min.js"></script>
+<script src="PEC3_codones_trna_penguins_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="PEC3_codones_trna_penguins_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="PEC3_codones_trna_penguins_files/libs/quarto-html/popper.min.js"></script>
+<script src="PEC3_codones_trna_penguins_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="PEC3_codones_trna_penguins_files/libs/quarto-html/anchor.min.js"></script>
+<link href="PEC3_codones_trna_penguins_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="PEC3_codones_trna_penguins_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="PEC3_codones_trna_penguins_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="PEC3_codones_trna_penguins_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="PEC3_codones_trna_penguins_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#análisis-bioinformático-de-codones-y-trnas-en-pingüinos" id="toc-análisis-bioinformático-de-codones-y-trnas-en-pingüinos" class="nav-link active" data-scroll-target="#análisis-bioinformático-de-codones-y-trnas-en-pingüinos">Análisis bioinformático de codones y tRNAs en pingüinos</a>
+  <ul class="collapse">
+  <li><a href="#configuración-y-carga-de-datos" id="toc-configuración-y-carga-de-datos" class="nav-link" data-scroll-target="#configuración-y-carga-de-datos">1. Configuración y carga de datos</a></li>
+  <li><a href="#preparación-y-control-de-calidad-de-cds" id="toc-preparación-y-control-de-calidad-de-cds" class="nav-link" data-scroll-target="#preparación-y-control-de-calidad-de-cds">2. Preparación y control de calidad de CDS</a></li>
+  <li><a href="#cálculo-y-visualización-del-uso-relativo-de-codones-rscu" id="toc-cálculo-y-visualización-del-uso-relativo-de-codones-rscu" class="nav-link" data-scroll-target="#cálculo-y-visualización-del-uso-relativo-de-codones-rscu">3. Cálculo y visualización del uso relativo de codones (RSCU)</a>
+  <ul class="collapse">
+  <li><a href="#visualización-general-heatmap-de-rscu" id="toc-visualización-general-heatmap-de-rscu" class="nav-link" data-scroll-target="#visualización-general-heatmap-de-rscu">3.1 Visualización general: heatmap de RSCU</a></li>
+  </ul></li>
+  <li><a href="#análisis-a-nivel-de-aminoácido" id="toc-análisis-a-nivel-de-aminoácido" class="nav-link" data-scroll-target="#análisis-a-nivel-de-aminoácido">4. Análisis a nivel de aminoácido</a>
+  <ul class="collapse">
+  <li><a href="#cuantificación-del-sesgo-por-aminoácido" id="toc-cuantificación-del-sesgo-por-aminoácido" class="nav-link" data-scroll-target="#cuantificación-del-sesgo-por-aminoácido">4.1 Cuantificación del sesgo por aminoácido</a></li>
+  <li><a href="#visualización-del-índice-de-shannon-relativo" id="toc-visualización-del-índice-de-shannon-relativo" class="nav-link" data-scroll-target="#visualización-del-índice-de-shannon-relativo">4.2 Visualización del índice de Shannon relativo</a></li>
+  </ul></li>
+  <li><a href="#comparación-entre-especies-pca-y-clustering" id="toc-comparación-entre-especies-pca-y-clustering" class="nav-link" data-scroll-target="#comparación-entre-especies-pca-y-clustering">5. Comparación entre especies: PCA y clustering</a>
+  <ul class="collapse">
+  <li><a href="#agrupamiento-jerárquico" id="toc-agrupamiento-jerárquico" class="nav-link" data-scroll-target="#agrupamiento-jerárquico">5.1 Agrupamiento jerárquico</a></li>
+  </ul></li>
+  <li><a href="#relación-codóntrna" id="toc-relación-codóntrna" class="nav-link" data-scroll-target="#relación-codóntrna">6. Relación codón–tRNA</a>
+  <ul class="collapse">
+  <li><a href="#unir-frecuencias-de-codones-y-copias-de-trna" id="toc-unir-frecuencias-de-codones-y-copias-de-trna" class="nav-link" data-scroll-target="#unir-frecuencias-de-codones-y-copias-de-trna">6.1 Unir frecuencias de codones y copias de tRNA</a></li>
+  <li><a href="#visualización-dispersión-codóntrna" id="toc-visualización-dispersión-codóntrna" class="nav-link" data-scroll-target="#visualización-dispersión-codóntrna">6.2 Visualización: dispersión codón–tRNA</a></li>
+  </ul></li>
+  <li><a href="#comparación-por-pares-de-especies-mediante-ortólogos-11" id="toc-comparación-por-pares-de-especies-mediante-ortólogos-11" class="nav-link" data-scroll-target="#comparación-por-pares-de-especies-mediante-ortólogos-11">7. Comparación por pares de especies mediante ortólogos 1:1</a>
+  <ul class="collapse">
+  <li><a href="#funciones-auxiliares" id="toc-funciones-auxiliares" class="nav-link" data-scroll-target="#funciones-auxiliares">7.1 Funciones auxiliares</a></li>
+  <li><a href="#especies-rutas-y-lectura-de-orthogroups" id="toc-especies-rutas-y-lectura-de-orthogroups" class="nav-link" data-scroll-target="#especies-rutas-y-lectura-de-orthogroups">7.2 – Especies, rutas y lectura de Orthogroups</a></li>
+  <li><a href="#distancias-codónicas-por-par-de-especies" id="toc-distancias-codónicas-por-par-de-especies" class="nav-link" data-scroll-target="#distancias-codónicas-por-par-de-especies">7.3 – Distancias codónicas por par de especies</a></li>
+  <li><a href="#guardar-csv-y-resumen-básico" id="toc-guardar-csv-y-resumen-básico" class="nav-link" data-scroll-target="#guardar-csv-y-resumen-básico">7.4 – Guardar CSV y resumen básico</a></li>
+  <li><a href="#barplot-de-los-20-orthogrupos-más-divergentes" id="toc-barplot-de-los-20-orthogrupos-más-divergentes" class="nav-link" data-scroll-target="#barplot-de-los-20-orthogrupos-más-divergentes">7.5 – Barplot de los 20 orthogrupos más divergentes</a></li>
+  <li><a href="#listas-para-go-usando-prota" id="toc-listas-para-go-usando-prota" class="nav-link" data-scroll-target="#listas-para-go-usando-prota">7.6 – Listas para GO (usando protA)</a></li>
+  </ul></li>
+  <li><a href="#conclusión-de-la-fase-bioinformática" id="toc-conclusión-de-la-fase-bioinformática" class="nav-link" data-scroll-target="#conclusión-de-la-fase-bioinformática">8. Conclusión de la fase bioinformática</a></li>
+  <li><a href="#estructura-de-archivos-necesaria" id="toc-estructura-de-archivos-necesaria" class="nav-link" data-scroll-target="#estructura-de-archivos-necesaria">9. Estructura de Archivos necesaria</a></li>
+  <li><a href="#reflexión-ética-y-sostenibilidad-cceg" id="toc-reflexión-ética-y-sostenibilidad-cceg" class="nav-link" data-scroll-target="#reflexión-ética-y-sostenibilidad-cceg">10. Reflexión ética y sostenibilidad (CCEG)</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Filogenia vs.&nbsp;ambiente térmico en el sesgo de uso de codones de pingüinos</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autor/a</div>
+    <div class="quarto-title-meta-contents">
+             <p>Gabriel Peña </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="análisis-bioinformático-de-codones-y-trnas-en-pingüinos" class="level1">
+<h1>Análisis bioinformático de codones y tRNAs en pingüinos</h1>
+<p>Este documento forma parte de la <strong>PEC2 y PEC3 del TFM en Bioinformática y Bioestadística (UOC)</strong><br>
+y contiene el flujo completo de análisis comparativo de uso de codones y abundancia de tRNAs<br>
+para cuatro especies de pingüinos: <em>Aptenodytes forsteri</em>, <em>Eudyptula minor</em>, <em>Spheniscus demersus</em><br>
+y <em>Spheniscus mendiculus</em>.</p>
+<p>El propósito de esta etapa es demostrar que el flujo bioinformático ya funciona end-to-end:<br>
+desde la preparación y filtrado de datos, hasta los primeros análisis exploratorios reproducibles.</p>
+<section id="configuración-y-carga-de-datos" class="level2">
+<h2 class="anchored" data-anchor-id="configuración-y-carga-de-datos">1. Configuración y carga de datos</h2>
+<p>En esta sección se cargan los paquetes necesarios, se define la estructura de las carpetas<br>
+y se asocian los archivos de entrada (CDS y tRNAs) con cada especie.<br>
+También se genera la tabla base que describe las correspondencias entre codones y aminoácidos.</p>
+</section>
+<section id="preparación-y-control-de-calidad-de-cds" class="level2">
+<h2 class="anchored" data-anchor-id="preparación-y-control-de-calidad-de-cds">2. Preparación y control de calidad de CDS</h2>
+<p>El objetivo aquí es asegurarse de que todas las secuencias codificantes (CDS) sean válidas antes de calcular estadísticas.</p>
+<p>Se comprueba que:</p>
+<p>Las secuencias tengan una longitud múltiplo de 3.</p>
+<p>Cumplan una longitud mínima razonable (≥ 90 nt, equivalente a ~30 aminoácidos).</p>
+<p>Se eliminan las CDS demasiado cortas o dudosas porque las secuencias incompletas o mal anotadas pueden distorsionar los conteos de codones y los valores de RSCU.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Función de control de calidad:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Se revisa que cada CDS tenga longitud múltiplo de 3 y sea suficientemente larga.</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>check_orf <span class="ot">&lt;-</span> <span class="cf">function</span>(seq) {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">toupper</span>(<span class="fu">as.character</span>(seq))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nchar</span>(s) <span class="sc">&lt;</span> <span class="dv">90</span>) <span class="fu">return</span>(<span class="cn">FALSE</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nchar</span>(s) <span class="sc">%%</span> <span class="dv">3</span> <span class="sc">!=</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">FALSE</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cn">TRUE</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Función para procesar una especie completa:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Se leen los CDS, se aplica el filtro anterior, se cuentan codones y se calculan los índices RSCU.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>process_species_cds <span class="ot">&lt;-</span> <span class="cf">function</span>(species_id, label, cds_fasta, trna_file) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Procesando CDS para "</span>, species_id, <span class="st">" ("</span>, label, <span class="st">")"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>cds <span class="ot">&lt;-</span> <span class="fu">readDNAStringSet</span>(cds_fasta)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Se aplica el filtro de calidad (ORFs válidos)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>orf_ok <span class="ot">&lt;-</span> <span class="fu">vapply</span>(cds, check_orf, <span class="fu">logical</span>(<span class="dv">1</span>))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>cds_filt <span class="ot">&lt;-</span> cds[orf_ok]</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"  CDS válidos: "</span>, <span class="fu">sum</span>(orf_ok), <span class="st">" / "</span>, <span class="fu">length</span>(cds))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Se genera matriz con el conteo de cada codón por CDS (salto de 3 bases)</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>codon_counts_mat <span class="ot">&lt;-</span> <span class="fu">trinucleotideFrequency</span>(</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>cds_filt,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="at">step    =</span> <span class="dv">3</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="at">as.prob =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Se convierte a formato largo y se añade la información de aminoácido</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>codon_counts_df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(codon_counts_mat, <span class="at">rownames =</span> <span class="st">"seq_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">pivot_longer</span>(<span class="sc">-</span>seq_id, <span class="at">names_to =</span> <span class="st">"codon"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(count <span class="sc">&gt;</span> <span class="dv">0</span>L) <span class="sc">%&gt;%</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(codon_aa_tbl, <span class="at">by =</span> <span class="st">"codon"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(aa))</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calcula el RSCU por gen:</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co"># RSCU = (uso observado) / (uso esperado si todos los codones sinónimos se usaran igual)</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>rscu_gene <span class="ot">&lt;-</span> codon_counts_df <span class="sc">%&gt;%</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(seq_id, aa) <span class="sc">%&gt;%</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="at">aa_total =</span> <span class="fu">sum</span>(count),</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="at">RSCU =</span> <span class="fu">if_else</span>(</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>aa_total <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>count <span class="sc">*</span> n_syn <span class="sc">/</span> aa_total,</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="cn">NA_real_</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="at">species       =</span> species_id,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="at">species_label =</span> label</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calcula el RSCU promedio por especie</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>rscu_species <span class="ot">&lt;-</span> rscu_gene <span class="sc">%&gt;%</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(species, species_label, aa, codon) <span class="sc">%&gt;%</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="at">RSCU =</span> <span class="fu">mean</span>(RSCU, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Se obtienen las frecuencias relativas por aminoácido (cada conjunto suma 1)</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>aa_freq_species <span class="ot">&lt;-</span> codon_counts_df <span class="sc">%&gt;%</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(aa, codon) <span class="sc">%&gt;%</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">sum</span>(count), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(aa) <span class="sc">%&gt;%</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="at">aa_total =</span> <span class="fu">sum</span>(count),</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="at">freq     =</span> count <span class="sc">/</span> aa_total</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="at">species       =</span> species_id,</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="at">species_label =</span> label</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="co"># Resumen general de cuántos CDS se analizaron</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>gene_summary <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a><span class="at">species       =</span> species_id,</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a><span class="at">species_label =</span> label,</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="at">n_cds_total   =</span> <span class="fu">length</span>(cds),</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="at">n_cds_orf_ok  =</span> <span class="fu">length</span>(cds_filt)</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a><span class="at">rscu_gene       =</span> rscu_gene,</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a><span class="at">rscu_species    =</span> rscu_species,</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a><span class="at">aa_freq_species =</span> aa_freq_species,</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a><span class="at">gene_summary    =</span> gene_summary</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a><span class="co"># Se ejecuta la función para todas las especies del estudio</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>res_list <span class="ot">&lt;-</span> species_info <span class="sc">%&gt;%</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(species_id, label, cds_fasta, trna_file) <span class="sc">%&gt;%</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmap</span>(process_species_cds)</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a><span class="co"># Se unen todos los resultados parciales en tablas generales</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>rscu_gene_all    <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(res_list, <span class="st">"rscu_gene"</span>)</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>rscu_species_all <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(res_list, <span class="st">"rscu_species"</span>)</span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>aa_freq_all      <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(res_list, <span class="st">"aa_freq_species"</span>)</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>gene_summary_all <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(res_list, <span class="st">"gene_summary"</span>)</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a><span class="co"># Se guarda la tabla resumen de genes válidos por especie</span></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(gene_summary_all, <span class="st">"results/gene_summary_by_species.tsv"</span>)</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>gene_summary_all</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  species species_label         n_cds_total n_cds_orf_ok
+  &lt;chr&gt;   &lt;chr&gt;                       &lt;int&gt;        &lt;int&gt;
+1 Afor    Aptenodytes forsteri        19116        19035
+2 Emin    Eudyptula minor             17556        17556
+3 Sdem    Spheniscus demersus         15881        15881
+4 Smen    Spheniscus mendiculus       16226        16226</code></pre>
+</div>
+</div>
+</section>
+<section id="cálculo-y-visualización-del-uso-relativo-de-codones-rscu" class="level2">
+<h2 class="anchored" data-anchor-id="cálculo-y-visualización-del-uso-relativo-de-codones-rscu">3. Cálculo y visualización del uso relativo de codones (RSCU)</h2>
+<p>En esta etapa se combinan los resultados de cada especie para generar una <strong>matriz RSCU</strong>,<br>
+donde las filas son codones y las columnas son especies.</p>
+<p>Esta matriz sirve como base para visualizaciones comparativas, como el <em>heatmap</em> o la PCA y permite identificar qué codones son preferidos o evitados en cada especie.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se genera la matriz RSCU: filas = codones, columnas = especies</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>rscu_matrix_long <span class="ot">&lt;-</span> rscu_species_all <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(aa, codon, species, RSCU)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>rscu_matrix_wide <span class="ot">&lt;-</span> rscu_matrix_long <span class="sc">%&gt;%</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">pivot_wider</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="at">names_from  =</span> species,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="at">values_from =</span> RSCU</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">arrange</span>(aa, codon)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Se guarda la matriz para referencia posterior o análisis externos</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(rscu_matrix_wide, <span class="st">"results/RSCU_matrix_by_species.tsv"</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Se muestran las primeras filas en el documento</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>rscu_matrix_wide <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  aa    codon  Afor  Emin  Sdem  Smen
+  &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 A     GCA   1.23  1.24  1.24  1.24 
+2 A     GCC   1.21  1.31  1.31  1.31 
+3 A     GCG   0.435 0.523 0.516 0.514
+4 A     GCT   1.29  1.30  1.30  1.31 
+5 C     TGC   1.15  1.21  1.21  1.21 
+6 C     TGT   0.991 1.03  1.02  1.03 </code></pre>
+</div>
+</div>
+<section id="visualización-general-heatmap-de-rscu" class="level3">
+<h3 class="anchored" data-anchor-id="visualización-general-heatmap-de-rscu">3.1 Visualización general: heatmap de RSCU</h3>
+<p>Para tener una primera impresión global de las diferencias,<br>
+se representa un <em>heatmap</em> donde cada fila corresponde a un codón<br>
+y el color refleja su RSCU relativo entre las especies.</p>
+<p>En este gráfico los valores se escalan por fila (<code>scale = "row"</code>),<br>
+de modo que los colores muestran diferencias <strong>relativas</strong> entre especies, no valores absolutos. Así se aprecian mejor los patrones de contraste.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se prepara la matriz para el heatmap</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>rscu_heatmap_mat <span class="ot">&lt;-</span> rscu_species_all <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">unite</span>(<span class="st">"aa_codon"</span>, aa, codon, <span class="at">sep =</span> <span class="st">"_"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(aa_codon, species, RSCU) <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">pivot_wider</span>(<span class="at">names_from =</span> species, <span class="at">values_from =</span> RSCU) <span class="sc">%&gt;%</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">column_to_rownames</span>(<span class="st">"aa_codon"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">as.matrix</span>()</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Se limpian los posibles NA o NaN</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>rscu_heatmap_mat[<span class="fu">is.nan</span>(rscu_heatmap_mat)] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>rscu_heatmap_mat[<span class="fu">is.na</span>(rscu_heatmap_mat)]  <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Se eliminan las filas sin variación (para evitar errores en clustering)</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>row_sds <span class="ot">&lt;-</span> <span class="fu">apply</span>(rscu_heatmap_mat, <span class="dv">1</span>, sd)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>rscu_heatmap_mat_filt <span class="ot">&lt;-</span> rscu_heatmap_mat[row_sds <span class="sc">&gt;</span> <span class="dv">0</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Se crea el heatmap</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="fu">pheatmap</span>(</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>rscu_heatmap_mat_filt,</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="at">cluster_rows =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="at">cluster_cols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="at">scale       =</span> <span class="st">"row"</span>,</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="at">main        =</span> <span class="st">"RSCU por codón (filas) y especie (columnas)"</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-rscu-heatmap" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rscu-heatmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="PEC3_codones_trna_penguins_files/figure-html/fig-rscu-heatmap-1.png" class="img-fluid figure-img" width="2100">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rscu-heatmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;1: Heatmap de valores RSCU para los 61 codones en cuatro especies de pingüinos.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="análisis-a-nivel-de-aminoácido" class="level2">
+<h2 class="anchored" data-anchor-id="análisis-a-nivel-de-aminoácido">4. Análisis a nivel de aminoácido</h2>
+<p>Hasta ahora analizamos el uso de codones individualmente,<br>
+pero los aminoácidos con varios codones sinónimos pueden mostrar<br>
+diferentes grados de <strong>sesgo interno</strong>.</p>
+<p>En esta sección se calcula y visualiza la distribución de frecuencias de los codones sinónimos dentro de cada aminoácido,<br>
+y se cuantifica su desigualdad con el <strong>índice de Shannon</strong>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se selecciona un aminoácido de ejemplo para ilustrar</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>aa_of_interest <span class="ot">&lt;-</span> <span class="st">"L"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico de barras: frecuencia relativa de cada codón sinónimo por especie</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>aa_freq_all <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(aa <span class="sc">==</span> aa_of_interest) <span class="sc">%&gt;%</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> codon, <span class="at">y =</span> freq, <span class="at">fill =</span> species_label)) <span class="sc">+</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Frecuencia relativa de codones para"</span>, aa_of_interest),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="at">x     =</span> <span class="st">"Codón"</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="at">y     =</span> <span class="st">"Frecuencia relativa"</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-aa-freq-barplot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aa-freq-barplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="PEC3_codones_trna_penguins_files/figure-html/fig-aa-freq-barplot-1.png" class="img-fluid figure-img" width="3600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aa-freq-barplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;2: Frecuencia relativa de codones sinónimos para un aminoácido de ejemplo (leucina) en las cuatro especies de pingüinos.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se selecciona un aminoácido de ejemplo para ilustrar</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>aa_of_interest <span class="ot">&lt;-</span> <span class="st">"Q"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico de barras: frecuencia relativa de cada codón sinónimo por especie</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>aa_freq_all <span class="sc">%&gt;%</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(aa <span class="sc">==</span> aa_of_interest) <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> codon, <span class="at">y =</span> freq, <span class="at">fill =</span> species_label)) <span class="sc">+</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Frecuencia relativa de codones para"</span>, aa_of_interest),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">x     =</span> <span class="st">"Codón"</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="at">y     =</span> <span class="st">"Frecuencia relativa"</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-aa-freq-barplot-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aa-freq-barplot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="PEC3_codones_trna_penguins_files/figure-html/fig-aa-freq-barplot-2-1.png" class="img-fluid figure-img" width="3600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aa-freq-barplot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;3: Frecuencia relativa de codones sinónimos para un aminoácido de ejemplo en las cuatro especies de pingüinos.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="cuantificación-del-sesgo-por-aminoácido" class="level3">
+<h3 class="anchored" data-anchor-id="cuantificación-del-sesgo-por-aminoácido">4.1 Cuantificación del sesgo por aminoácido</h3>
+<p>No basta con ver la distribución: también interesa medir <strong>cuánto sesgo hay</strong>.<br>
+Para eso se calculan dos indicadores por aminoácido y especie:</p>
+<ul>
+<li><strong>Índice de Shannon (H’):</strong> mide la diversidad de uso de codones.<br>
+Cuanto menor es H’, más concentrado está el uso en unos pocos codones.<br>
+</li>
+<li><strong>Varianza:</strong> mide la desigualdad en las frecuencias.</li>
+</ul>
+<p>Estos valores permiten comparar el “nivel de uniformidad” entre aminoácidos y entre especies de forma más objetiva.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>aa_bias_metrics <span class="ot">&lt;-</span> aa_freq_all <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(species, species_label, aa) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">n_codons      =</span> <span class="fu">n</span>(),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="at">shannon_index =</span> <span class="sc">-</span><span class="fu">sum</span>(freq <span class="sc">*</span> <span class="fu">log2</span>(freq), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="at">variance_freq =</span> <span class="fu">var</span>(freq, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">shannon_rel =</span> shannon_index <span class="sc">/</span> <span class="fu">log2</span>(n_codons)  <span class="co"># 0–1 (1 = uso uniforme)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Se guardan los resultados para análisis posteriores</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(aa_bias_metrics, <span class="st">"results/aa_bias_metrics.tsv"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>aa_bias_metrics <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  species species_label   aa    n_codons shannon_index variance_freq shannon_rel
+  &lt;chr&gt;   &lt;chr&gt;           &lt;chr&gt;    &lt;int&gt;         &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;
+1 Afor    Aptenodytes fo… A            4         1.86      0.0126          0.932
+2 Afor    Aptenodytes fo… C            2         0.996     0.00303         0.996
+3 Afor    Aptenodytes fo… D            2         0.995     0.00379         0.995
+4 Afor    Aptenodytes fo… E            2         1.000     0.0000121       1.000
+5 Afor    Aptenodytes fo… F            2         0.999     0.000461        0.999
+6 Afor    Aptenodytes fo… G            4         1.98      0.00226         0.990</code></pre>
+</div>
+</div>
+</section>
+<section id="visualización-del-índice-de-shannon-relativo" class="level3">
+<h3 class="anchored" data-anchor-id="visualización-del-índice-de-shannon-relativo">4.2 Visualización del índice de Shannon relativo</h3>
+<p>Finalmente, se representa el <strong>índice de Shannon relativo</strong> (<code>H' / Hmax</code>)<br>
+para cada aminoácido y especie.</p>
+<p>Un valor cercano a 1 indica que los codones se usan de forma uniforme,<br>
+mientras que valores bajos (≈ 0) revelan un fuerte sesgo.</p>
+<p>Esta figura permite apreciar qué aminoácidos muestran más estabilidad y cuáles concentran el uso en pocos codones, lo que podría estar relacionado con preferencias de traducción o restricciones evolutivas.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(aa_bias_metrics, <span class="fu">aes</span>(<span class="at">x =</span> aa, <span class="at">y =</span> shannon_rel, <span class="at">fill =</span> species_label)) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="at">title =</span> <span class="st">"Índice de Shannon relativo del uso de codones por aminoácido"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="at">x     =</span> <span class="st">"Aminoácido"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="at">y     =</span> <span class="st">"H' relativo (0 = sesgo alto, 1 = uniforme)"</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-aa-bias-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aa-bias-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="PEC3_codones_trna_penguins_files/figure-html/fig-aa-bias-plot-1.png" class="img-fluid figure-img" width="3600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aa-bias-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;4: Índice de Shannon relativo por aminoácido, comparando la distribución de codones sinónimos entre especies.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="comparación-entre-especies-pca-y-clustering" class="level2">
+<h2 class="anchored" data-anchor-id="comparación-entre-especies-pca-y-clustering">5. Comparación entre especies: PCA y clustering</h2>
+<p>En esta sección se comparan los perfiles globales de uso de codones entre las cuatro especies.<br>
+La idea es ver si las especies se agrupan más por <strong>filogenia</strong> o por <strong>condiciones ambientales</strong>.</p>
+<p>Se utilizan dos enfoques clásicos:</p>
+<ul>
+<li><p><strong>PCA (Análisis de Componentes Principales):</strong> reduce la información y muestra las diferencias globales.<br>
+</p></li>
+<li><p><strong>Clustering jerárquico:</strong> agrupa las especies según su distancia en los valores de RSCU.</p></li>
+<li><p>Si las especies filogenéticamente cercanas se agrupan, el patrón estaría dominado por la historia evolutiva.<br>
+</p></li>
+<li><p>Si las de ambientes similares se acercan aunque sean distantes, podría haber convergencia adaptativa.</p></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se genera el PCA sobre la matriz RSCU promedio por especie</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>rscu_pca_wide <span class="ot">&lt;-</span> rscu_species_all <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(species, species_label, codon, RSCU) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">pivot_wider</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="at">names_from  =</span> codon,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="at">values_from =</span> RSCU</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>species_labels <span class="ot">&lt;-</span> rscu_pca_wide<span class="sc">$</span>species_label</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>rscu_pca_mat <span class="ot">&lt;-</span> rscu_pca_wide <span class="sc">%&gt;%</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(<span class="sc">-</span>species, <span class="sc">-</span>species_label) <span class="sc">%&gt;%</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">as.matrix</span>()</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(rscu_pca_mat) <span class="ot">&lt;-</span> rscu_pca_wide<span class="sc">$</span>species</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Se reemplazan los valores faltantes por 0 y se eliminan las columnas constantes</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>rscu_pca_mat[<span class="fu">is.na</span>(rscu_pca_mat)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>col_sds <span class="ot">&lt;-</span> <span class="fu">apply</span>(rscu_pca_mat, <span class="dv">2</span>, sd)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>rscu_pca_mat_filt <span class="ot">&lt;-</span> rscu_pca_mat[, col_sds <span class="sc">&gt;</span> <span class="dv">0</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Se ejecuta el PCA</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>pca_res <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(rscu_pca_mat_filt, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Tabla de resultados de PCA (componentes principales)</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>pca_df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(pca_res<span class="sc">$</span>x, <span class="at">rownames =</span> <span class="st">"species"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(species_info <span class="sc">%&gt;%</span> <span class="fu">select</span>(species_id, label),</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="at">by =</span> <span class="fu">c</span>(<span class="st">"species"</span> <span class="ot">=</span> <span class="st">"species_id"</span>))</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Se visualizan los dos primeras componentes</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pca_df, <span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2, <span class="at">label =</span> label)) <span class="sc">+</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#2c7fb8"</span>) <span class="sc">+</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">size      =</span> <span class="dv">4</span>,</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">max.overlaps =</span> <span class="cn">Inf</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"PCA de RSCU promedio por especie"</span>,</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">paste0</span>(<span class="st">"PC1 ("</span>, <span class="fu">percent</span>(<span class="fu">summary</span>(pca_res)<span class="sc">$</span>importance[<span class="dv">2</span>,<span class="dv">1</span>]), <span class="st">")"</span>),</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">paste0</span>(<span class="st">"PC2 ("</span>, <span class="fu">percent</span>(<span class="fu">summary</span>(pca_res)<span class="sc">$</span>importance[<span class="dv">2</span>,<span class="dv">2</span>]), <span class="st">")"</span>)</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">10</span>, <span class="dv">10</span>)</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-pca-rscu" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pca-rscu-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="PEC3_codones_trna_penguins_files/figure-html/fig-pca-rscu-1.png" class="img-fluid figure-img" width="3600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pca-rscu-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5: Análisis PCA del uso relativo de codones (RSCU) entre especies de pingüinos.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="agrupamiento-jerárquico" class="level3">
+<h3 class="anchored" data-anchor-id="agrupamiento-jerárquico">5.1 Agrupamiento jerárquico</h3>
+<p>A continuación se construye un <strong>dendrograma</strong> que muestra las relaciones entre especies<br>
+según la distancia euclidiana en sus valores de RSCU.</p>
+<p>En un análisis exploratorio, este gráfico ayuda a visualizar si los perfiles de uso de codones siguen el mismo patrón que el árbol filogenético.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dist_species <span class="ot">&lt;-</span> <span class="fu">dist</span>(rscu_pca_mat_filt)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>hc <span class="ot">&lt;-</span> <span class="fu">hclust</span>(dist_species, <span class="at">method =</span> <span class="st">"complete"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>op <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">6</span>))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  hc,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> species_labels,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Clustering jerárquico basado en RSCU"</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">sub  =</span> <span class="st">""</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex  =</span> <span class="fl">1.2</span>   <span class="co"># tamaño de letra de las etiquetas</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(op)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-hclust-rscu" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-hclust-rscu-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="PEC3_codones_trna_penguins_files/figure-html/fig-hclust-rscu-1.png" class="img-fluid figure-img" width="3600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hclust-rscu-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;6: Clustering jerárquico de especies basado en las distancias de uso de codones (RSCU).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="relación-codóntrna" class="level2">
+<h2 class="anchored" data-anchor-id="relación-codóntrna">6. Relación codón–tRNA</h2>
+<p>El último paso conecta la frecuencia de uso de codones con la abundancia de tRNAs.<br>
+El objetivo es evaluar si los codones más usados en cada especie<br>
+coinciden con los anticodones más representados en su genoma (coadaptación).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Función para convertir anticodón (3'-&gt;5') en codón complementario</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>anticodon_to_codon <span class="ot">&lt;-</span> <span class="cf">function</span>(ac) {</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ac_dna <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"U"</span>, <span class="st">"T"</span>, <span class="fu">toupper</span>(ac))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">as.character</span>(<span class="fu">reverseComplement</span>(<span class="fu">DNAString</span>(ac_dna)))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Se realiza la conversión de nombres de aminoácidos de 3 a 1 letra</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>aa3_to1 <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="at">Ala =</span> <span class="st">"A"</span>, <span class="at">Arg =</span> <span class="st">"R"</span>, <span class="at">Asn =</span> <span class="st">"N"</span>, <span class="at">Asp =</span> <span class="st">"D"</span>,</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="at">Cys =</span> <span class="st">"C"</span>, <span class="at">Gln =</span> <span class="st">"Q"</span>, <span class="at">Glu =</span> <span class="st">"E"</span>, <span class="at">Gly =</span> <span class="st">"G"</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="at">His =</span> <span class="st">"H"</span>, <span class="at">Ile =</span> <span class="st">"I"</span>, <span class="at">Leu =</span> <span class="st">"L"</span>, <span class="at">Lys =</span> <span class="st">"K"</span>,</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="at">Met =</span> <span class="st">"M"</span>, <span class="at">Phe =</span> <span class="st">"F"</span>, <span class="at">Pro =</span> <span class="st">"P"</span>, <span class="at">Ser =</span> <span class="st">"S"</span>,</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="at">Thr =</span> <span class="st">"T"</span>, <span class="at">Trp =</span> <span class="st">"W"</span>, <span class="at">Tyr =</span> <span class="st">"Y"</span>, <span class="at">Val =</span> <span class="st">"V"</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Se realiza la lectura y resumen de archivos de tRNAscan-SE</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>read_trna_counts <span class="ot">&lt;-</span> <span class="cf">function</span>(trna_file, species_id) {</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Se saltan las 3 líneas de cabecera</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>trna_raw <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_table</span>(</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>trna_file,</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="at">skip =</span> <span class="dv">3</span>,</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="at">col_names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="co"># X5: Tipo de tRNA (AA)</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="co"># X6: Anticodón</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="co"># X10: Nota (pseudo)</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>trna_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="at">species   =</span> species_id,</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a><span class="at">aa3       =</span> trna_raw[[<span class="dv">5</span>]],</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a><span class="at">anticodon =</span> <span class="fu">toupper</span>(trna_raw[[<span class="dv">6</span>]]),</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a><span class="at">note      =</span> <span class="cf">if</span> (<span class="fu">ncol</span>(trna_raw) <span class="sc">&gt;=</span> <span class="dv">10</span>) trna_raw[[<span class="dv">10</span>]] <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a><span class="at">aa =</span> aa3_to1[aa3]</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a><span class="sc">!</span><span class="fu">is.na</span>(aa),</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>aa <span class="sc">!=</span> <span class="st">""</span>,</span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="fu">is.na</span>(note) <span class="sc">|</span> <span class="sc">!</span><span class="fu">str_detect</span>(note, <span class="st">"pseudo"</span>)</span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a><span class="at">codon =</span> <span class="fu">map_chr</span>(anticodon, anticodon_to_codon)</span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Se cuentan los tRNAs por codón</span></span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>trna_counts <span class="ot">&lt;-</span> trna_df <span class="sc">%&gt;%</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">count</span>(species, aa, codon, <span class="at">name =</span> <span class="st">"tRNA_copies"</span>)</span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>trna_counts</span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="co"># Se aplica la función a todas las especies</span></span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>trna_counts_all <span class="ot">&lt;-</span> species_info <span class="sc">%&gt;%</span></span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(species_id, trna_file) <span class="sc">%&gt;%</span></span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a><span class="fu">pmap_dfr</span>(<span class="sc">~</span> <span class="fu">read_trna_counts</span>(..<span class="dv">2</span>, ..<span class="dv">1</span>))</span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a>trna_counts_all</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 188 × 4
+   species aa    codon tRNA_copies
+   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;int&gt;
+ 1 Afor    A     GCA             9
+ 2 Afor    A     GCG             2
+ 3 Afor    A     GCT             7
+ 4 Afor    C     TGC             9
+ 5 Afor    D     GAC             6
+ 6 Afor    E     GAA             5
+ 7 Afor    E     GAG             5
+ 8 Afor    F     TTC             3
+ 9 Afor    G     GGA             4
+10 Afor    G     GGC             7
+# ℹ 178 more rows</code></pre>
+</div>
+</div>
+<section id="unir-frecuencias-de-codones-y-copias-de-trna" class="level3">
+<h3 class="anchored" data-anchor-id="unir-frecuencias-de-codones-y-copias-de-trna">6.1 Unir frecuencias de codones y copias de tRNA</h3>
+<p>Aquí se combinan las dos tablas:<br>
+- Frecuencia relativa de cada codón (<code>aa_freq_all</code>)<br>
+- Número de copias del tRNA correspondiente (<code>trna_counts_all</code>)</p>
+<p>Luego se calculan las correlaciones (Spearman y Pearson) por especie.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>codon_trna_join <span class="ot">&lt;-</span> aa_freq_all <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">codon =</span> <span class="fu">toupper</span>(codon)) <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(species, species_label, aa, codon, <span class="at">codon_freq =</span> freq) <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>trna_counts_all <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">codon =</span> <span class="fu">toupper</span>(codon)),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="at">by =</span> <span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"aa"</span>, <span class="st">"codon"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="at">tRNA_copies =</span> <span class="fu">replace_na</span>(tRNA_copies, <span class="dv">0</span>L)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlaciones por especie (evitando sd = 0)</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>codon_trna_cor <span class="ot">&lt;-</span> codon_trna_join <span class="sc">%&gt;%</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(species, species_label) <span class="sc">%&gt;%</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="at">n_codons         =</span> <span class="fu">n</span>(),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="at">n_codons_tRNAgt0 =</span> <span class="fu">sum</span>(tRNA_copies <span class="sc">&gt;</span> <span class="dv">0</span>),</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="at">sd_codon_freq    =</span> <span class="fu">sd</span>(codon_freq),</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="at">sd_tRNA_copies   =</span> <span class="fu">sd</span>(tRNA_copies),</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="at">cor_spearman =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>sd_codon_freq <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> sd_tRNA_copies <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(codon_freq, tRNA_copies, <span class="at">method =</span> <span class="st">"spearman"</span>),</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="cn">NA_real_</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>),</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="at">cor_pearson =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>sd_codon_freq <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> sd_tRNA_copies <span class="sc">&gt;</span> <span class="dv">0</span>,</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(codon_freq, tRNA_copies, <span class="at">method =</span> <span class="st">"pearson"</span>),</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="cn">NA_real_</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>),</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a><span class="fu">arrange</span>(<span class="fu">desc</span>(cor_spearman))</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Se guardan los resultados de las correlaciones</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(codon_trna_cor, <span class="st">"results/codon_trna_correlations_by_species.tsv"</span>)</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>codon_trna_cor</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 8
+  species species_label   n_codons n_codons_tRNAgt0 sd_codon_freq sd_tRNA_copies
+  &lt;chr&gt;   &lt;chr&gt;              &lt;int&gt;            &lt;int&gt;         &lt;dbl&gt;          &lt;dbl&gt;
+1 Sdem    Spheniscus dem…       61               48         0.198           5.37
+2 Afor    Aptenodytes fo…       61               45         0.197           2.68
+3 Emin    Eudyptula minor       61               47         0.198           4.86
+4 Smen    Spheniscus men…       61               48         0.198           3.48
+# ℹ 2 more variables: cor_spearman &lt;dbl&gt;, cor_pearson &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="visualización-dispersión-codóntrna" class="level3">
+<h3 class="anchored" data-anchor-id="visualización-dispersión-codóntrna">6.2 Visualización: dispersión codón–tRNA</h3>
+<p>Por último, se genera un gráfico de dispersión para cada especie.<br>
+Cada punto representa un codón:<br>
+- Eje X = número de copias del tRNA correspondiente.<br>
+- Eje Y = frecuencia relativa del codón en el genoma.</p>
+<p>La línea de tendencia indica si existe una correlación positiva (coadaptación).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Se calcula el coeficiente de correlación por especie</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>cor_data <span class="ot">&lt;-</span> codon_trna_join <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(species_label) <span class="sc">%&gt;%</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">r =</span> <span class="fu">cor</span>(tRNA_copies, codon_freq, <span class="at">method =</span> <span class="st">"pearson"</span>, <span class="at">use =</span> <span class="st">"complete.obs"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">r_label =</span> <span class="fu">paste0</span>(<span class="st">"r = "</span>, <span class="fu">round</span>(r, <span class="dv">2</span>)))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Se genera el gráfico con anotaciones</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(codon_trna_join,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> tRNA_copies, <span class="at">y =</span> codon_freq)) <span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">color =</span> <span class="st">"#3182bd"</span>) <span class="sc">+</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"#de2d26"</span>) <span class="sc">+</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> species_label, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> cor_data,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> <span class="cn">Inf</span>, <span class="at">y =</span> <span class="cn">Inf</span>, <span class="at">label =</span> r_label),</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="fl">1.1</span>, <span class="at">vjust =</span> <span class="fl">1.2</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Relación entre frecuencia de codones y copias de tRNA"</span>,</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Número de copias de tRNA (anticodón)"</span>,</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frecuencia relativa de codón"</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-codon-trna-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-codon-trna-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="PEC3_codones_trna_penguins_files/figure-html/fig-codon-trna-plot-1.png" class="img-fluid figure-img" width="3600">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-codon-trna-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;7: Relación entre la abundancia de tRNAs (anticodones) y la frecuencia relativa de codones por especie.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="comparación-por-pares-de-especies-mediante-ortólogos-11" class="level2">
+<h2 class="anchored" data-anchor-id="comparación-por-pares-de-especies-mediante-ortólogos-11">7. Comparación por pares de especies mediante ortólogos 1:1</h2>
+<p>En esta sección se integran los resultados de OrthoFinder (orthogrupos 1:1) con los CDS de cada especie para calcular distancias codónicas por gen entre pares de especies contrastantes. A partir de estas distancias se construyen rankings de genes más divergentes y más similares, y se generan listas para análisis GO.</p>
+<section id="funciones-auxiliares" class="level3">
+<h3 class="anchored" data-anchor-id="funciones-auxiliares">7.1 Funciones auxiliares</h3>
+<p>En este bloque se cargan las funciones auxiliares necesarias para el análisis por pares: cálculo de frecuencias codónicas por gen, normalización de dichas frecuencias y extracción de identificadores de proteínas a partir de los headers de los CDS.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Función: frecuencia codónica por gen</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>calc_codon_freq <span class="ot">&lt;-</span> <span class="cf">function</span>(sequence){</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>codons <span class="ot">&lt;-</span> <span class="fu">s2c</span>(sequence) <span class="sc">%&gt;%</span> <span class="fu">split</span>(., <span class="fu">ceiling</span>(<span class="fu">seq_along</span>(.)<span class="sc">/</span><span class="dv">3</span>))</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>codons <span class="ot">&lt;-</span> <span class="fu">sapply</span>(codons, <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="at">collapse =</span> <span class="st">""</span>))</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(codons)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Función: normalizar frecuencias</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>normalize <span class="ot">&lt;-</span> <span class="cf">function</span>(x) x <span class="sc">/</span> <span class="fu">sum</span>(x)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Función: extraer ID de proteína desde el header de CDS</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>extract_protein_id <span class="ot">&lt;-</span> <span class="cf">function</span>(header) {</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>id <span class="ot">&lt;-</span> <span class="fu">str_extract</span>(</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>header,</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="st">"(XP_</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+|KAF</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+|NP_</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+)"</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(id)) id <span class="cf">else</span> <span class="cn">NA_character_</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="especies-rutas-y-lectura-de-orthogroups" class="level3">
+<h3 class="anchored" data-anchor-id="especies-rutas-y-lectura-de-orthogroups">7.2 – Especies, rutas y lectura de Orthogroups</h3>
+<p>Se definen los pares de especies que se van a comparar, se especifican las rutas a los datos (data/) y se lee el archivo Orthogroups.txt generado por OrthoFinder. A partir de este archivo se construyen los orthogrupos 1:1, es decir, aquellos con una única copia por especie presentes en todas las especies analizadas.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Definir pares</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>pairs <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pair1 =</span> <span class="fu">c</span>(<span class="st">"SPH_DEM"</span>, <span class="st">"SPH_MEN"</span>),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">pair2 =</span> <span class="fu">c</span>(<span class="st">"APT_FOR"</span>, <span class="st">"EUD_MIN"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Especies y rutas</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>species  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"APT_FOR"</span>, <span class="st">"EUD_MIN"</span>, <span class="st">"SPH_DEM"</span>, <span class="st">"SPH_MEN"</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>cds_path <span class="ot">&lt;-</span> <span class="st">"data"</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ruta al Orthogroups.txt de OrthoFinder</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>orthogroups_txt <span class="ot">&lt;-</span> <span class="st">"orthofinder_input/OrthoFinder/Results_Dec03_2/Orthogroups/Orthogroups.txt"</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustar la ruta según la fecha y la carpeta generada por OrthoFinder correspondiente al análisis realizado</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Mapa prot_id -&gt; especie a partir de protein.faa</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>build_prot_map <span class="ot">&lt;-</span> <span class="cf">function</span>(sp){</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  prots <span class="ot">&lt;-</span> <span class="fu">read.fasta</span>(<span class="fu">file.path</span>(<span class="st">"data"</span>, sp, <span class="st">"protein.faa"</span>))</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">prot_id =</span> <span class="fu">sapply</span>(<span class="fu">names</span>(prots), <span class="cf">function</span>(h) <span class="fu">str_extract</span>(h, <span class="st">"^[^ ]+"</span>)),</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">species =</span> sp</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>prot_map <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(species, build_prot_map)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Parsear Orthogroups.txt y seleccionar orthogrupos 1:1</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>og_lines <span class="ot">&lt;-</span> <span class="fu">readLines</span>(orthogroups_txt)</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>og_long <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">line =</span> og_lines) <span class="sc">%&gt;%</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">separate</span>(line, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"Orthogroup"</span>, <span class="st">"rest"</span>),</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>                  <span class="at">sep =</span> <span class="st">":</span><span class="sc">\\</span><span class="st">s+"</span>, <span class="at">extra =</span> <span class="st">"merge"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rest =</span> <span class="fu">str_trim</span>(rest)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prot_id =</span> <span class="fu">str_split</span>(rest, <span class="st">"</span><span class="sc">\\</span><span class="st">s+"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">unnest</span>(prot_id) <span class="sc">%&gt;%</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(prot_map, <span class="at">by =</span> <span class="st">"prot_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(species))</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>og_counts <span class="ot">&lt;-</span> og_long <span class="sc">%&gt;%</span></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Orthogroup, species) <span class="sc">%&gt;%</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>single_ogs <span class="ot">&lt;-</span> og_counts <span class="sc">%&gt;%</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Orthogroup) <span class="sc">%&gt;%</span></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_species =</span> <span class="fu">n</span>(),</span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">all_single =</span> <span class="fu">all</span>(n <span class="sc">==</span> <span class="dv">1</span>),</span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n_species <span class="sc">==</span> <span class="fu">length</span>(species), all_single) <span class="sc">%&gt;%</span></span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(Orthogroup)</span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>single_long <span class="ot">&lt;-</span> og_long <span class="sc">%&gt;%</span></span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Orthogroup <span class="sc">%in%</span> single_ogs)</span>
+<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-61"><a href="#cb20-61" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Orthogrupos 1:1 (todas las especies, una copia cada una): "</span>,</span>
+<span id="cb20-62"><a href="#cb20-62" aria-hidden="true" tabindex="-1"></a>        <span class="fu">length</span>(<span class="fu">unique</span>(single_long<span class="sc">$</span>Orthogroup)))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="distancias-codónicas-por-par-de-especies" class="level3">
+<h3 class="anchored" data-anchor-id="distancias-codónicas-por-par-de-especies">7.3 – Distancias codónicas por par de especies</h3>
+<p>Se recorren los pares de especies definidos arriba. Para cada par se seleccionan los orthogrupos 1:1 correspondientes, se enlazan con los CDS de cada especie y se calculan las distancias codónicas por gen (euclidianas sobre frecuencias normalizadas de codones). El resultado es una tabla por par con un ranking de orthogrupos desde los más divergentes a los más similares.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pair_results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(p <span class="cf">in</span> <span class="fu">names</span>(pairs)){</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  spA <span class="ot">&lt;-</span> pairs[[p]][<span class="dv">1</span>]</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  spB <span class="ot">&lt;-</span> pairs[[p]][<span class="dv">2</span>]</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Analizando par: "</span>, spA, <span class="st">" vs "</span>, spB)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Orthogrupos 1:1 para este par</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  og_pair <span class="ot">&lt;-</span> single_long <span class="sc">%&gt;%</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(species <span class="sc">%in%</span> <span class="fu">c</span>(spA, spB)) <span class="sc">%&gt;%</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(Orthogroup, species, prot_id) <span class="sc">%&gt;%</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">names_from  =</span> species,</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">values_from =</span> prot_id</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Renombrar columnas dinámicamente</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  og_pair <span class="ot">&lt;-</span> og_pair <span class="sc">%&gt;%</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">protA =</span> <span class="sc">!!</span>rlang<span class="sc">::</span><span class="fu">sym</span>(spA),</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">protB =</span> <span class="sc">!!</span>rlang<span class="sc">::</span><span class="fu">sym</span>(spB)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(protA), <span class="sc">!</span><span class="fu">is.na</span>(protB))</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"  Orthogrupos 1:1 con ambas especies: "</span>, <span class="fu">nrow</span>(og_pair))</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(og_pair) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">"No hay orthogrupos 1:1 para el par "</span>, p, <span class="st">". El CSV saldrá vacío."</span>)</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    pair_results[[p]] <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">Orthogroup =</span> <span class="fu">character</span>(),</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">protA      =</span> <span class="fu">character</span>(),</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">protB      =</span> <span class="fu">character</span>(),</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist_codon =</span> <span class="fu">numeric</span>()</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">next</span></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Lectura de CDS y asociación a proteínas</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>  cdsA <span class="ot">&lt;-</span> <span class="fu">read.fasta</span>(<span class="fu">file.path</span>(cds_path, spA, <span class="st">"cds_from_genomic.fna"</span>))</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>  cdsB <span class="ot">&lt;-</span> <span class="fu">read.fasta</span>(<span class="fu">file.path</span>(cds_path, spB, <span class="st">"cds_from_genomic.fna"</span>))</span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>  cleanA <span class="ot">&lt;-</span> cdsA[<span class="fu">sapply</span>(cdsA, <span class="cf">function</span>(x) <span class="fu">length</span>(x) <span class="sc">%%</span> <span class="dv">3</span> <span class="sc">==</span> <span class="dv">0</span>)]</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>  cleanB <span class="ot">&lt;-</span> cdsB[<span class="fu">sapply</span>(cdsB, <span class="cf">function</span>(x) <span class="fu">length</span>(x) <span class="sc">%%</span> <span class="dv">3</span> <span class="sc">==</span> <span class="dv">0</span>)]</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>  idsA <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">names</span>(cleanA), extract_protein_id)</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>  idsB <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">names</span>(cleanB), extract_protein_id)</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>  keepA <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(idsA)</span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>  keepB <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(idsB)</span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>  cleanA <span class="ot">&lt;-</span> cleanA[keepA]; idsA <span class="ot">&lt;-</span> idsA[keepA]</span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a>  cleanB <span class="ot">&lt;-</span> cleanB[keepB]; idsB <span class="ot">&lt;-</span> idsB[keepB]</span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>  df_cdsA <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">prot_id =</span> idsA,</span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">seqA    =</span> <span class="fu">sapply</span>(cleanA, c2s)</span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a>  df_cdsB <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">prot_id =</span> idsB,</span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">seqB    =</span> <span class="fu">sapply</span>(cleanB, c2s)</span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a>  df_pair <span class="ot">&lt;-</span> og_pair <span class="sc">%&gt;%</span></span>
+<span id="cb21-67"><a href="#cb21-67" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(df_cdsA, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"protA"</span> <span class="ot">=</span> <span class="st">"prot_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb21-68"><a href="#cb21-68" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(df_cdsB, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"protB"</span> <span class="ot">=</span> <span class="st">"prot_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb21-69"><a href="#cb21-69" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(seqA), <span class="sc">!</span><span class="fu">is.na</span>(seqB))</span>
+<span id="cb21-70"><a href="#cb21-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-71"><a href="#cb21-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"  Orthogrupos con CDS en ambas especies: "</span>, <span class="fu">nrow</span>(df_pair))</span>
+<span id="cb21-72"><a href="#cb21-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-73"><a href="#cb21-73" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">nrow</span>(df_pair) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb21-74"><a href="#cb21-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">"No hay CDS emparejados para el par "</span>, p, <span class="st">". El CSV saldrá vacío."</span>)</span>
+<span id="cb21-75"><a href="#cb21-75" aria-hidden="true" tabindex="-1"></a>    pair_results[[p]] <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-76"><a href="#cb21-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">Orthogroup =</span> <span class="fu">character</span>(),</span>
+<span id="cb21-77"><a href="#cb21-77" aria-hidden="true" tabindex="-1"></a>      <span class="at">protA      =</span> <span class="fu">character</span>(),</span>
+<span id="cb21-78"><a href="#cb21-78" aria-hidden="true" tabindex="-1"></a>      <span class="at">protB      =</span> <span class="fu">character</span>(),</span>
+<span id="cb21-79"><a href="#cb21-79" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist_codon =</span> <span class="fu">numeric</span>()</span>
+<span id="cb21-80"><a href="#cb21-80" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-81"><a href="#cb21-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">next</span></span>
+<span id="cb21-82"><a href="#cb21-82" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-83"><a href="#cb21-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-84"><a href="#cb21-84" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Frecuencias y distancias codónicas</span></span>
+<span id="cb21-85"><a href="#cb21-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-86"><a href="#cb21-86" aria-hidden="true" tabindex="-1"></a>  freqsA <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df_pair<span class="sc">$</span>seqA, calc_codon_freq)</span>
+<span id="cb21-87"><a href="#cb21-87" aria-hidden="true" tabindex="-1"></a>  freqsB <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df_pair<span class="sc">$</span>seqB, calc_codon_freq)</span>
+<span id="cb21-88"><a href="#cb21-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-89"><a href="#cb21-89" aria-hidden="true" tabindex="-1"></a>  freqsA_norm <span class="ot">&lt;-</span> <span class="fu">lapply</span>(freqsA, normalize)</span>
+<span id="cb21-90"><a href="#cb21-90" aria-hidden="true" tabindex="-1"></a>  freqsB_norm <span class="ot">&lt;-</span> <span class="fu">lapply</span>(freqsB, normalize)</span>
+<span id="cb21-91"><a href="#cb21-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-92"><a href="#cb21-92" aria-hidden="true" tabindex="-1"></a>  distances <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_dbl</span>(freqsA_norm, freqsB_norm, <span class="cf">function</span>(a,b){</span>
+<span id="cb21-93"><a href="#cb21-93" aria-hidden="true" tabindex="-1"></a>    all_codons <span class="ot">&lt;-</span> <span class="fu">union</span>(<span class="fu">names</span>(a), <span class="fu">names</span>(b))</span>
+<span id="cb21-94"><a href="#cb21-94" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> a[all_codons]; a[<span class="fu">is.na</span>(a)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb21-95"><a href="#cb21-95" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> b[all_codons]; b[<span class="fu">is.na</span>(b)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb21-96"><a href="#cb21-96" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sqrt</span>(<span class="fu">sum</span>((a <span class="sc">-</span> b)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb21-97"><a href="#cb21-97" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb21-98"><a href="#cb21-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-99"><a href="#cb21-99" aria-hidden="true" tabindex="-1"></a>  df_out <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-100"><a href="#cb21-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">Orthogroup =</span> df_pair<span class="sc">$</span>Orthogroup,</span>
+<span id="cb21-101"><a href="#cb21-101" aria-hidden="true" tabindex="-1"></a>    <span class="at">protA      =</span> df_pair<span class="sc">$</span>protA,</span>
+<span id="cb21-102"><a href="#cb21-102" aria-hidden="true" tabindex="-1"></a>    <span class="at">protB      =</span> df_pair<span class="sc">$</span>protB,</span>
+<span id="cb21-103"><a href="#cb21-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist_codon =</span> distances</span>
+<span id="cb21-104"><a href="#cb21-104" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb21-105"><a href="#cb21-105" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(dist_codon))</span>
+<span id="cb21-106"><a href="#cb21-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-107"><a href="#cb21-107" aria-hidden="true" tabindex="-1"></a>  pair_results[[p]] <span class="ot">&lt;-</span> df_out</span>
+<span id="cb21-108"><a href="#cb21-108" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="guardar-csv-y-resumen-básico" class="level3">
+<h3 class="anchored" data-anchor-id="guardar-csv-y-resumen-básico">7.4 – Guardar CSV y resumen básico</h3>
+<p>Una vez calculadas las distancias codónicas para cada par, en este bloque se crean las carpetas de resultados, se guardan los archivos .csv con las distancias por orthogrupo y se imprime un pequeño resumen descriptivo (summary) de las distancias para cada comparación.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear carpetas si no existen</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">"results"</span>)) {</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"results"</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Carpeta 'results' creada."</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">"results/PEC3_pairs"</span>)) {</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"results/PEC3_pairs"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Carpeta 'results/PEC3_pairs' creada."</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Guardar resultados y mostrar resumen por par</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(p <span class="cf">in</span> <span class="fu">names</span>(pair_results)){</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> pair_results[[p]]</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>output_file <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"results/PEC3_pairs/"</span>, p, <span class="st">"_distancias_codones.csv"</span>)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(df, output_file)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Archivo guardado: "</span>, output_file)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"  n orthogrupos en "</span>, p, <span class="st">": "</span>, <span class="fu">nrow</span>(df))</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(df) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"  resumen dist_codon:"</span>)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(df<span class="sc">$</span>dist_codon))</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">---------------------------------------</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.000000 0.001478 0.004641 0.008729 0.009244 0.157585 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.002543 0.015051 0.024872 0.033184 0.044453 0.214491 </code></pre>
+</div>
+</div>
+</section>
+<section id="barplot-de-los-20-orthogrupos-más-divergentes" class="level3">
+<h3 class="anchored" data-anchor-id="barplot-de-los-20-orthogrupos-más-divergentes">7.5 – Barplot de los 20 orthogrupos más divergentes</h3>
+<p>Aquí se seleccionan, para cada par de especies, los 20 orthogrupos con mayor distancia codónica y se generan gráficos de barras (guardados como .png) que muestran visualmente qué genes ortólogos son los más divergentes a nivel de uso de codones. Esto facilita escoger candidatos para una interpretación biológica más fina y para el análisis funcional posterior.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(p <span class="cf">in</span> <span class="fu">names</span>(pairs)){</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> pair_results[[p]]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(df) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Saltando "</span>, p, <span class="st">" (sin datos)."</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="cf">next</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_codon))</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(df) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Todas las distancias son NA en "</span>, p, <span class="st">". No se genera figura."</span>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="cf">next</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>top20 <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">slice_max</span>(<span class="at">order_by =</span> dist_codon, <span class="at">n =</span> <span class="dv">20</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>top20 <span class="ot">&lt;-</span> top20 <span class="sc">%&gt;%</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">Orthogroup =</span> <span class="fu">factor</span>(Orthogroup, <span class="at">levels =</span> <span class="fu">rev</span>(Orthogroup)))</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="fu">paste0</span>(<span class="st">"results/PEC3_pairs/"</span>, p, <span class="st">"_heatmap_top20.png"</span>),</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="at">width =</span> <span class="dv">1200</span>, <span class="at">height =</span> <span class="dv">900</span>)</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(top20, <span class="fu">aes</span>(<span class="at">x =</span> Orthogroup, <span class="at">y =</span> dist_codon)) <span class="sc">+</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Top 20 orthogrupos más divergentes -"</span>, p),</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="at">y =</span> <span class="st">"Distancia codónica"</span>, <span class="at">x =</span> <span class="st">"Orthogrupo"</span>)</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="listas-para-go-usando-prota" class="level3">
+<h3 class="anchored" data-anchor-id="listas-para-go-usando-prota">7.6 – Listas para GO (usando protA)</h3>
+<p>Finalmente, en este bloque se generan listas de identificadores de proteínas (protA) a partir de los orthogrupos ordenados por distancia codónica. Para cada par se exportan dos listas: las 200 proteínas más divergentes y las 200 más similares. Estas listas se guardan en formato texto y servirán como entrada para los análisis de enriquecimiento funcional (GO) previstos en la siguiente fase del TFM.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Código</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(p <span class="cf">in</span> <span class="fu">names</span>(pair_results)){</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> pair_results[[p]]</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(df) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Saltando listas GO para "</span>, p, <span class="st">" (sin datos)."</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="cf">next</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dist_codon), <span class="sc">!</span><span class="fu">is.na</span>(protA))</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(df) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Sin distancias/protA válidos en "</span>, p, <span class="st">"."</span>)</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="cf">next</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>top_div <span class="ot">&lt;-</span> <span class="fu">head</span>(df<span class="sc">$</span>protA, <span class="dv">200</span>)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>top_sim <span class="ot">&lt;-</span> <span class="fu">tail</span>(df<span class="sc">$</span>protA, <span class="dv">200</span>)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="fu">write_lines</span>(top_div,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="st">"results/PEC3_pairs/"</span>, p, <span class="st">"_GO_genes_divergentes.txt"</span>))</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="fu">write_lines</span>(top_sim,</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="st">"results/PEC3_pairs/"</span>, p, <span class="st">"_GO_genes_similares.txt"</span>))</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="fu">message</span>(<span class="st">"Listas GO generadas para "</span>, p)</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="conclusión-de-la-fase-bioinformática" class="level2">
+<h2 class="anchored" data-anchor-id="conclusión-de-la-fase-bioinformática">8. Conclusión de la fase bioinformática</h2>
+<p>El análisis bioinformático del proyecto avanzó desde una caracterización global del sesgo de uso de codones (PEC2) hacia un análisis comparativo profundo centrado en la separación entre filogenia y ambiente térmico (PEC3). En la primera fase (PEC2), se completó la preparación y limpieza de los datos: selección de CDS válidos, identificación de tRNAs mediante tRNAscan-SE, cálculo de perfiles RSCU, medición de la entropía por aminoácido y análisis multiespecie mediante PCA y clustering. Estos resultados establecieron las bases para interpretar patrones generales de sesgo codónico entre especies de pingüinos.</p>
+<p>En la segunda fase (PEC3), el enfoque se volvió más resolutivo y centrado en comparaciones por pares de especies. Se integraron los resultados de OrthoFinder para identificar orthogrupos 1:1 presentes en todas las especies, lo que permitió obtener conjuntos de genes ortólogos estrictamente comparables. A partir de esos genes, se calcularon distancias codónicas por gen, generando rankings de genes más divergentes y más conservados. También se produjeron nuevas figuras (barplots de los 20 genes más divergentes por par) y se generaron listas para análisis funcional GO, que se completará en la PEC4.</p>
+<p>En conjunto, el flujo PEC2 + PEC3 permite abordar la pregunta central del TFM desde dos escalas complementarias:</p>
+<ul>
+<li><p>Escala global: diferencias codónicas ampliamente determinadas por la filogenia.</p></li>
+<li><p>Escala por pares: ciertos genes muestran divergencias compatibles con posibles respuestas adaptativas asociadas al ambiente térmico.</p></li>
+</ul>
+<p>El pipeline actualizado es completamente reproducible, modular y documentado, y deja preparado el camino para la PEC4, donde se realizarán los análisis funcionales, los contrastes estadísticos finales (incluyendo Mantel entre distancia térmica y filogenética), y la interpretación evolutiva completa</p>
+</section>
+<section id="estructura-de-archivos-necesaria" class="level2">
+<h2 class="anchored" data-anchor-id="estructura-de-archivos-necesaria">9. Estructura de Archivos necesaria</h2>
+<pre class="text"><code>Pinguino_analisis/
+ ├─ data/
+ │   ├─ APT_FOR/cds_from_genomic.fna, trnascan.txt, protein.faa
+ │   ├─ EUD_MIN/cds_from_genomic.fna, trnascan.txt, protein.faa
+ │   ├─ SPH_DEM/cds_from_genomic.fna, trnascan.txt, protein.faa
+ │   └─ SPH_MEN/cds_from_genomic.fna, trnascan.txt, protein.faa
+ ├─ PEC2_codones_trna_penguins.qmd
+ └─ run_trnascan_eukaryotic.sh
+ ├─ orthofinder_input/
+ │   ├─ APT_FOR.faa
+ │   ├─ EUD_MIN.faa
+ │   ├─ SPH_DEM.faa
+ │   ├─ SPH_MEN.faa
+ │   └─ OrthoFinder/
+ │        └─ Results_XXXYY_Z/
+ │             ├─ Orthogroups/
+ │             │     ├─ Orthogroups.txt
+ │             │     └─ (otros archivos)
+ │             └─ (MSA, árboles, logs)
+ │
+ ├─ PEC3_codones_trna_penguins.qmd
+ ├─ run_trnascan_eukaryotic.sh
+ └─ readme.md</code></pre>
+</section>
+<section id="reflexión-ética-y-sostenibilidad-cceg" class="level2">
+<h2 class="anchored" data-anchor-id="reflexión-ética-y-sostenibilidad-cceg">10. Reflexión ética y sostenibilidad (CCEG)</h2>
+<p>Este proyecto se basa exclusivamente en datos públicos obtenidos desde NCBI GenBank y en herramientas de software libre (R, Bioconductor, seqinr, ggplot2, OrthoFinder). El análisis no involucra muestras biológicas, animales ni personas, por lo que no genera conflictos de integridad clínica, bienestar animal o protección de datos personales.</p>
+<p>Desde la perspectiva de la sostenibilidad, el flujo se ha implementado de manera modular, reproducible y eficiente, favoreciendo el uso responsable de recursos computacionales. La integración de OrthoFinder y los pipelines R/Quarto se alinea con los principios de investigación abierta y reproducible, facilitando que otros investigadores puedan replicar, auditar o ampliar los resultados sin depender de software propietario.</p>
+<p>El proyecto contribuye a los ODS 13, 15 y 16 al promover la ciencia abierta, la transparencia en el uso de datos y una comprensión molecular más profunda de especies vulnerables como los pingüinos, cuyo estado de conservación está fuertemente ligado al cambio climático y a la pérdida de biodiversidad marina.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
